@@ -45,10 +45,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   motor_params.msg
-# )
+ add_message_files(
+   FILES
+   AnalogArray.msg
+   DigitalArray.msg
+ )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -101,7 +102,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES phidgets_port
+  # LIBRARIES phidgets_port
   CATKIN_DEPENDS roscpp std_msgs phidgets_api
   DEPENDS system_lib
 )

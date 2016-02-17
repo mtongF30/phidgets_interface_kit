@@ -35,7 +35,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include <phidgets_api/phidget.h>
-#include "phidgets_interface_kit/interface_kit.h"
+#include "interface_kit.h"
 
 
 CPhidgetInterfaceKitHandle ifkit = 0;
@@ -147,11 +147,11 @@ bool attach( CPhidgetInterfaceKitHandle &phid, int serial_number){
 	CPhidget_open((CPhidgetHandle)phid, serial_number);
 
   //Wait for interface kit to be attached
+  ROS_INFO("Waiting for interface kit Phidget to be attached....");
   if (serial_number == -1) {
-      ROS_INFO("Waiting for interface kit Phidget to be attached....");
   }
   else {
-      ROS_INFO("Waiting for Motor Control HC Phidget %d to be attached....", serial_number);
+    ROS_INFO("Waiting for Motor Control HC Phidget %d to be attached....", serial_number);
   }
 
   int result;
