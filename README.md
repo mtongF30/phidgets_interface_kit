@@ -6,7 +6,8 @@ This package provides support for using the Phidgets InterfaceKit.
 
  * `analog_in` (phidgets_interface_kit/AnalogArray)
  * `digital_in` (phidgets_interface_kit/DigitalArray)
- * `analog_in_change` (phidgets_interface_kit/AnalogChange)
- * `digital_in_change` (phidgets_interface_kit/DigitalChange)
+ * `digital_out` (phidgets_interface_kit/DigitalArray)
 
 ## Subscribed Topics
+
+ * `cmd_digital_out` (phidgets_interface_kit/DigitalArray)
