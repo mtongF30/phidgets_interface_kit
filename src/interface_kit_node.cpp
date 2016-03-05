@@ -35,8 +35,14 @@
 #include <stdlib.h>
 #include <sstream>
 #include <phidgets_api/phidget.h>
+#include <phidgets_interface_kit/AnalogArray.h>
+#include <phidgets_interface_kit/DigitalArray.h>
 #include "interface_kit.h"
 
+ros::Publisher analogInPub;
+ros::Publisher digitalInPub;
+ros::Publisher digitalOutPub;
+ros::Subscriber digitalOutSub;
 
 CPhidgetInterfaceKitHandle ifkit = 0;
 bool initialised = false;
@@ -67,21 +73,6 @@ int DetachHandler(CPhidgetHandle phid, void *userptr){
 int ErrorHandler(CPhidgetHandle phid, void *userptr, int ErrorCode, const char *Description){
     ROS_ERROR("Error handled. %d - %s", ErrorCode, Description);
     return 0;
-}
-
-int InputChangeHandler(CPhidgetInterfaceKitHandle phid, void *usrptr, int Index, int State){
-  ROS_INFO("Digital Input: %d > State: %d\n", Index, State);
-	return 0;
-}
-
-int OutputChangeHandler(CPhidgetInterfaceKitHandle phid, void *usrptr, int Index, int State){
-  ROS_INFO("Digital Output: %d > State: %d\n", Index, State);
-	return 0;
-}
-
-int SensorChangeHandler(CPhidgetInterfaceKitHandle phid, void *usrptr, int Index, int Value){
-	ROS_INFO("Sensor: %d > Value: %d\n", Index, Value);
-	return 0;
 }
 
 int display_properties(CPhidgetInterfaceKitHandle phid){
@@ -121,47 +112,16 @@ int display_properties(CPhidgetInterfaceKitHandle phid){
 
 bool attach( CPhidgetInterfaceKitHandle &phid, int serial_number){
 
-
   //create the InterfaceKit object
 	CPhidgetInterfaceKit_create(&phid);
 
-
-	//Set the handlers to be run when the device is plugged in or opened from software, unplugged or closed from software, or generates an error.
+	//Setup life-cycle handlers
 	CPhidget_set_OnAttach_Handler((CPhidgetHandle)phid, AttachHandler, NULL);
 	CPhidget_set_OnDetach_Handler((CPhidgetHandle)phid, DetachHandler, NULL);
 	CPhidget_set_OnError_Handler((CPhidgetHandle)phid, ErrorHandler, NULL);
 
-	//Registers a callback that will run if an input changes.
-	//Requires the handle for the Phidget, the function that will be called, and an arbitrary pointer that will be supplied to the callback function (may be NULL).
-	CPhidgetInterfaceKit_set_OnInputChange_Handler (phid, InputChangeHandler, NULL);
-
-	//Registers a callback that will run if the sensor value changes by more than the OnSensorChange trig-ger.
-	//Requires the handle for the IntefaceKit, the function that will be called, and an arbitrary pointer that will be supplied to the callback function (may be NULL).
-	CPhidgetInterfaceKit_set_OnSensorChange_Handler (phid, SensorChangeHandler, NULL);
-
-	//Registers a callback that will run if an output changes.
-	//Requires the handle for the Phidget, the function that will be called, and an arbitrary pointer that will be supplied to the callback function (may be NULL).
-	CPhidgetInterfaceKit_set_OnOutputChange_Handler (phid, OutputChangeHandler, NULL);
-
-	//open the interfacekit for device connections
+  // Open
 	CPhidget_open((CPhidgetHandle)phid, serial_number);
-
-  //Wait for interface kit to be attached
-  ROS_INFO("Waiting for interface kit Phidget to be attached....");
-  if (serial_number == -1) {
-  }
-  else {
-    ROS_INFO("Waiting for Motor Control HC Phidget %d to be attached....", serial_number);
-  }
-
-  int result;
-  if((result = CPhidget_waitForAttachment((CPhidgetHandle)phid, 10000)))
-	{
-    const char *err;
-		CPhidget_getErrorDescription(result, &err);
-		ROS_ERROR("Problem waiting for interface kit phidget attachment: %s\n", err);
-		return false;
-	}
 
   return true;
 }
@@ -173,13 +133,79 @@ void disconnect(CPhidgetInterfaceKitHandle &phid){
     CPhidget_delete((CPhidgetHandle)phid);
 }
 
+void publishAnalogInputStates(CPhidgetInterfaceKitHandle &phid) {
+  int count = 0;
+  phidgets_interface_kit::AnalogArray analogArray;
+  CPhidgetInterfaceKit_getSensorCount(phid, &count);
 
+  for(int i=0; i<count; i++){
+    int value = 0;
+    CPhidgetInterfaceKit_getSensorValue(phid, i, &value);
+
+    analogArray.values.push_back(value);
+  }
+
+  analogInPub.publish(analogArray);
+}
+
+void publishDigitalInputStates(CPhidgetInterfaceKitHandle &phid) {
+  int count = 0;
+  phidgets_interface_kit::DigitalArray digitalArray;
+  CPhidgetInterfaceKit_getInputCount(phid, &count);
+
+  for(int i=0; i<count; i++){
+    int value = 0;
+    CPhidgetInterfaceKit_getInputState(phid, i, &value);
+
+    digitalArray.states.push_back((bool)value);
+  }
+
+  digitalInPub.publish(digitalArray);
+}
+
+void publishDigitalOutputStates(CPhidgetInterfaceKitHandle &phid) {
+  int count = 0;
+  phidgets_interface_kit::DigitalArray digitalArray;
+  CPhidgetInterfaceKit_getOutputCount(phid, &count);
+
+  for(int i=0; i<count; i++){
+    int value = 0;
+    CPhidgetInterfaceKit_getOutputState(phid, i, &value);
+
+    digitalArray.states.push_back((bool)value);
+  }
+
+  digitalOutPub.publish(digitalArray);
+}
+
+void onCmdDigitalOut(const phidgets_interface_kit::DigitalArrayConstPtr& input){
+
+  if(initialised){
+    int count = 0;
+    CPhidgetInterfaceKit_getOutputCount(ifkit, &count);
+
+    int limit = (input->states.size() < count) ? input->states.size() : count;
+
+    for(int i=0; i<limit; i++){
+        int value = input->states[i];
+        CPhidgetInterfaceKit_setOutputState(ifkit, i, value);
+    }
+  }
+  else{
+    ROS_WARN("Phidgets Interface Kit not initalized yet, ignoring output command");
+  }
+}
 
 int main(int argc, char* argv[])
 {
     ros::init(argc, argv, "phidgets_interface_kit");
     ros::NodeHandle n;
     ros::NodeHandle nh("~");
+
+    analogInPub = nh.advertise<phidgets_interface_kit::AnalogArray>("analog_in", 1, true);
+    digitalInPub = nh.advertise<phidgets_interface_kit::DigitalArray>("digital_in", 1, true);
+    digitalOutPub = nh.advertise<phidgets_interface_kit::DigitalArray>("digital_out", 1, true);
+    digitalOutSub = nh.subscribe("cmd_digital_out", 1, onCmdDigitalOut);
 
     // Load parameters
     int serial_number = -1;
@@ -191,11 +217,24 @@ int main(int argc, char* argv[])
       display_properties(ifkit);
 
       initialised = true;
-      ros::Rate loop_rate(1);
+      ros::Rate loop_rate(30);
 
       while (ros::ok()) {
-          ros::spinOnce();
-          loop_rate.sleep();
+
+        if(analogInPub.getNumSubscribers() > 0){
+          publishAnalogInputStates(ifkit);
+        }
+
+        if(digitalInPub.getNumSubscribers() > 0){
+          publishDigitalInputStates(ifkit);
+        }
+
+        if(digitalOutPub.getNumSubscribers() > 0){
+          publishDigitalOutputStates(ifkit);
+        }
+
+        ros::spinOnce();
+        loop_rate.sleep();
       }
 
       disconnect(ifkit);
