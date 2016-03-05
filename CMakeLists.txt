@@ -133,6 +133,9 @@ include_directories(
 ## Declare a C++ executable
 add_executable(interface_kit_node src/interface_kit_node.cpp)
 
+add_executable(ir_range_node src/ir_range_node.cpp)
+
+
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(interface_kit_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -140,6 +143,7 @@ add_dependencies(interface_kit_node phidgets_api)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(interface_kit_node ${catkin_LIBRARIES})
+target_link_libraries(ir_range_node ${catkin_LIBRARIES})
 
 
 #############
