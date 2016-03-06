@@ -13,12 +13,40 @@ int analogValueOffset;
 int analogValueScale;
 int analogValueMin;
 int analogValueMax;
+float sensorFoV;
+
+float rangeValueMin = 0.0f;
+float rangeValueMax = 0.0f;
 
 vector<ros::Publisher> rangePubs;
 ros::Subscriber analogInSub;
 
 void onAnalogIn(const phidgets_interface_kit::AnalogArrayConstPtr& input){
-  //
+
+  ROS_INFO("onAnalogIn: sensor count=%i", sensor_indexes.size());
+
+  for(int i=0; i < sensor_indexes.size(); i++){
+      int sensorIndex = sensor_indexes[i];
+
+      sensor_msgs::Range range;
+      range.header.stamp = ros::Time::now();
+      range.header.frame_id = frames[i];
+      range.radiation_type = sensor_msgs::Range::INFRARED;
+      range.min_range = rangeValueMin;
+      range.max_range = rangeValueMax;
+      range.field_of_view = sensorFoV;
+
+      range.range = (analogValueScale/(input->values[sensorIndex] + analogValueOffset))/100.0f;
+
+      if(range.range > range.max_range){
+        range.range = range.max_range;
+      }
+      else if(range.range < range.min_range){
+        range.range = range.min_range;
+      }
+
+      rangePubs[i].publish(range);
+  }
 }
 
 int main(int argc, char** argv) {
@@ -35,17 +63,16 @@ int main(int argc, char** argv) {
   nh.getParam("value_scale", analogValueScale);
   nh.getParam("value_min", analogValueMin);
   nh.getParam("value_max", analogValueMax);
+  nh.getParam("sensor_fov", sensorFoV);
 
-  ROS_INFO("Sensors: %i", sensor_indexes.size());
-  ROS_INFO("Topic: %s", topic.c_str());
+  rangeValueMin = (analogValueScale/(analogValueMin + analogValueOffset))/100.0f;
+  rangeValueMax = (analogValueScale/(analogValueMax + analogValueOffset))/100.0f;
 
-  analogInSub = nh.subscribe(topic.c_str(), 1, onAnalogIn);
+  analogInSub = n.subscribe(topic.c_str(), 1, onAnalogIn);
 
   vector<int>::iterator it=sensor_indexes.begin();
   for (; it != sensor_indexes.end(); ++it) {
-
-    ros::Publisher pub = nh.advertise<sensor_msgs::Range>(frames[*it].c_str(), 1, false);
-    rangePubs.push_back(pub);
+    rangePubs.push_back(nh.advertise<sensor_msgs::Range>(frames[*it].c_str(), 1, false));
   }
 
   ros::spin();
