@@ -1,51 +1,52 @@
 #include <ros/ros.h>
 #include <map>
 #include <vector>
+#include <limits>
 #include <phidgets_interface_kit/AnalogArray.h>
 #include <sensor_msgs/Range.h>
+#include <angles/angles.h>
 
 using namespace std;
 
 //! Parameters
 vector<int> sensor_indexes;
 vector<string> frames;
-int analogValueOffset;
-int analogValueScale;
-int analogValueMin;
-int analogValueMax;
+float analogValueOffset;
+float analogValueScale;
+float analogValueMin;
+float analogValueMax;
 float sensorFoV;
 
 float rangeValueMin = 0.0f;
 float rangeValueMax = 0.0f;
 
-vector<ros::Publisher> rangePubs;
+ros::Publisher rangePub;
 ros::Subscriber analogInSub;
+phidgets_interface_kit::AnalogArray analogValues;
 
-void onAnalogIn(const phidgets_interface_kit::AnalogArrayConstPtr& input){
-
-  ROS_INFO("onAnalogIn: sensor count=%i", sensor_indexes.size());
+void onAnalogIn(const phidgets_interface_kit::AnalogArrayConstPtr& input) {
 
   for(int i=0; i < sensor_indexes.size(); i++){
-      int sensorIndex = sensor_indexes[i];
+    int sensorIndex = sensor_indexes[i];
 
-      sensor_msgs::Range range;
-      range.header.stamp = ros::Time::now();
-      range.header.frame_id = frames[i];
-      range.radiation_type = sensor_msgs::Range::INFRARED;
-      range.min_range = rangeValueMin;
-      range.max_range = rangeValueMax;
-      range.field_of_view = sensorFoV;
+    sensor_msgs::Range range;
+    range.header.stamp = ros::Time::now();
+    range.header.frame_id = frames[i];
+    range.radiation_type = sensor_msgs::Range::INFRARED;
+    range.min_range = rangeValueMin;
+    range.max_range = rangeValueMax;
+    range.field_of_view = angles::from_degrees(sensorFoV);
 
-      range.range = (analogValueScale/(input->values[sensorIndex] + analogValueOffset))/100.0f;
+    range.range = (analogValueScale/(input->values[sensorIndex] + analogValueOffset))/100.0f;
 
-      if(range.range > range.max_range){
-        range.range = range.max_range;
-      }
-      else if(range.range < range.min_range){
-        range.range = range.min_range;
-      }
+    if(range.range > range.max_range){
+      range.range = INFINITY;
+    }
+    else if(range.range < range.min_range){
+      range.range = INFINITY;
+    }
 
-      rangePubs[i].publish(range);
+    rangePub.publish(range);
   }
 }
 
@@ -65,15 +66,19 @@ int main(int argc, char** argv) {
   nh.getParam("value_max", analogValueMax);
   nh.getParam("sensor_fov", sensorFoV);
 
-  rangeValueMin = (analogValueScale/(analogValueMin + analogValueOffset))/100.0f;
-  rangeValueMax = (analogValueScale/(analogValueMax + analogValueOffset))/100.0f;
+  ROS_INFO("analogValueOffset = %f", analogValueOffset);
+  ROS_INFO("analogValueScale = %f", analogValueScale);
+  ROS_INFO("analogValueMin = %f", analogValueMin);
+  ROS_INFO("analogValueMax = %f", analogValueMax);
+  ROS_INFO("sensorFoV = %f", sensorFoV);
+
+  rangeValueMax = (analogValueScale/(analogValueMin + analogValueOffset))/100.0f;
+  rangeValueMin = (analogValueScale/(analogValueMax + analogValueOffset))/100.0f;
 
   analogInSub = n.subscribe(topic.c_str(), 1, onAnalogIn);
-
-  vector<int>::iterator it=sensor_indexes.begin();
-  for (; it != sensor_indexes.end(); ++it) {
-    rangePubs.push_back(nh.advertise<sensor_msgs::Range>(frames[*it].c_str(), 1, false));
-  }
+  rangePub = nh.advertise<sensor_msgs::Range>("range", 10);
 
   ros::spin();
+
+  return 0;
 }

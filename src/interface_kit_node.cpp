@@ -202,15 +202,16 @@ int main(int argc, char* argv[])
     ros::NodeHandle n;
     ros::NodeHandle nh("~");
 
-    analogInPub = nh.advertise<phidgets_interface_kit::AnalogArray>("analog_in", 1, true);
-    digitalInPub = nh.advertise<phidgets_interface_kit::DigitalArray>("digital_in", 1, true);
-    digitalOutPub = nh.advertise<phidgets_interface_kit::DigitalArray>("digital_out", 1, true);
+    analogInPub = n.advertise<phidgets_interface_kit::AnalogArray>("/cl4_gpio/analog_in", 1, true);
+    digitalInPub = n.advertise<phidgets_interface_kit::DigitalArray>("/cl4_gpio/digital_in", 1, true);
+    digitalOutPub = n.advertise<phidgets_interface_kit::DigitalArray>("/cl4_gpio/digital_out", 1, true);
     digitalOutSub = nh.subscribe("cmd_digital_out", 1, onCmdDigitalOut);
 
     // Load parameters
     int serial_number = -1;
     nh.getParam("serial", serial_number);
 
+    ros::spinOnce();
 
     if (attach(ifkit, serial_number)) {
 
@@ -221,17 +222,17 @@ int main(int argc, char* argv[])
 
       while (ros::ok()) {
 
-        if(analogInPub.getNumSubscribers() > 0){
+        //if(analogInPub.getNumSubscribers() > 0){
           publishAnalogInputStates(ifkit);
-        }
+        //}
 
-        if(digitalInPub.getNumSubscribers() > 0){
+        //if(digitalInPub.getNumSubscribers() > 0){
           publishDigitalInputStates(ifkit);
-        }
+        //}
 
-        if(digitalOutPub.getNumSubscribers() > 0){
+        //if(digitalOutPub.getNumSubscribers() > 0){
           publishDigitalOutputStates(ifkit);
-        }
+        //}
 
         ros::spinOnce();
         loop_rate.sleep();

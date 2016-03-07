@@ -7,6 +7,7 @@ project(phidgets_interface_kit)
 find_package(catkin REQUIRED COMPONENTS
   message_generation
   roscpp
+  angles
   std_msgs
   sensor_msgs
   phidgets_api
@@ -105,7 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   # LIBRARIES phidgets_port
-  CATKIN_DEPENDS roscpp std_msgs sensor_msgs phidgets_api message_runtime
+  CATKIN_DEPENDS roscpp angles std_msgs sensor_msgs phidgets_api message_runtime
   DEPENDS system_lib
 )
 
