@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 
   string topic;
 
-  nh.param("topic", topic);
+  nh.getParam("topic", topic);
   nh.getParam("sensor_index", sensorIndex);
   nh.getParam("value_offset", analogValueOffset);
   nh.getParam("value_scale", analogValueScale);
