@@ -196,50 +196,43 @@ void onCmdDigitalOut(const phidgets_interface_kit::DigitalArrayConstPtr& input){
   }
 }
 
-int main(int argc, char* argv[])
-{
-    ros::init(argc, argv, "phidgets_interface_kit");
-    ros::NodeHandle n;
-    ros::NodeHandle nh("~");
-
-    analogInPub = n.advertise<phidgets_interface_kit::AnalogArray>("/cl4_gpio/analog_in", 1, true);
-    digitalInPub = n.advertise<phidgets_interface_kit::DigitalArray>("/cl4_gpio/digital_in", 1, true);
-    digitalOutPub = n.advertise<phidgets_interface_kit::DigitalArray>("/cl4_gpio/digital_out", 1, true);
-    digitalOutSub = nh.subscribe("cmd_digital_out", 1, onCmdDigitalOut);
-
-    // Load parameters
-    int serial_number = -1;
-    nh.getParam("serial", serial_number);
-
-    ros::spinOnce();
-
-    if (attach(ifkit, serial_number)) {
-
-      display_properties(ifkit);
-
-      initialised = true;
-      ros::Rate loop_rate(30);
-
-      while (ros::ok()) {
-
-        //if(analogInPub.getNumSubscribers() > 0){
-          publishAnalogInputStates(ifkit);
-        //}
-
-        //if(digitalInPub.getNumSubscribers() > 0){
-          publishDigitalInputStates(ifkit);
-        //}
-
-        //if(digitalOutPub.getNumSubscribers() > 0){
-          publishDigitalOutputStates(ifkit);
-        //}
-
-        ros::spinOnce();
-        loop_rate.sleep();
-      }
-
-      disconnect(ifkit);
+void timerCallback(const ros::TimerEvent& event) {
+  if(analogInPub.getNumSubscribers() > 0){
+    publishAnalogInputStates(ifkit);
   }
 
-    return 0;
+  if(digitalInPub.getNumSubscribers() > 0){
+    publishDigitalInputStates(ifkit);
+  }
+
+  if(digitalOutPub.getNumSubscribers() > 0){
+    publishDigitalOutputStates(ifkit);
+  }
+}
+
+int main(int argc, char* argv[]) {
+  ros::init(argc, argv, "phidgets_interface_kit");
+  ros::NodeHandle n;
+  ros::NodeHandle nh("~");
+
+  analogInPub = n.advertise<phidgets_interface_kit::AnalogArray>("/cl4_gpio/analog_in", 1, true);
+  digitalInPub = n.advertise<phidgets_interface_kit::DigitalArray>("/cl4_gpio/digital_in", 1, true);
+  digitalOutPub = n.advertise<phidgets_interface_kit::DigitalArray>("/cl4_gpio/digital_out", 1, true);
+  digitalOutSub = nh.subscribe("cmd_digital_out", 1, onCmdDigitalOut);
+
+  // Load parameters
+  int serial_number = -1;
+  nh.getParam("serial", serial_number);
+
+  if (attach(ifkit, serial_number)) {
+
+    display_properties(ifkit);
+    initialised = true;
+
+    ros::Timer timer = nh.createTimer(ros::Duration(0.033), timerCallback);
+    ros::spin();
+    disconnect(ifkit);
+  }
+
+  return 0;
 }
