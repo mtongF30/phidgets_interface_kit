@@ -104,7 +104,6 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
   # LIBRARIES phidgets_port
   CATKIN_DEPENDS roscpp angles std_msgs sensor_msgs phidgets_api message_runtime
   DEPENDS system_lib
@@ -133,9 +132,8 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(interface_kit_node src/interface_kit_node.cpp)
-
 add_executable(ir_range_node src/ir_range_node.cpp)
-
+add_executable(voltage_divider_node src/voltage_divider_node.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -145,6 +143,7 @@ add_dependencies(interface_kit_node phidgets_api)
 ## Specify libraries to link a library or executable target against
 target_link_libraries(interface_kit_node ${catkin_LIBRARIES})
 target_link_libraries(ir_range_node ${catkin_LIBRARIES})
+target_link_libraries(voltage_divider_node ${catkin_LIBRARIES})
 
 
 #############
