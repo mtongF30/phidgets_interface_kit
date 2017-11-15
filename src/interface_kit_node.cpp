@@ -152,6 +152,7 @@ void publishDigitalInputStates(CPhidgetInterfaceKitHandle &phid) {
   int count = 0;
   phidgets_interface_kit::DigitalArray digitalArray;
   CPhidgetInterfaceKit_getInputCount(phid, &count);
+  
 
   for(int i=0; i<count; i++){
     int value = 0;
@@ -166,7 +167,7 @@ void publishDigitalInputStates(CPhidgetInterfaceKitHandle &phid) {
 void publishDigitalOutputStates(CPhidgetInterfaceKitHandle &phid) {
   int count = 0;
   phidgets_interface_kit::DigitalArray digitalArray;
-  CPhidgetInterfaceKit_getOutputCount(phid, &count);
+  CPhidgetInterfaceKit_getOutputCount(phid, &count);   
 
   for(int i=0; i<count; i++){
     int value = 0;
@@ -179,7 +180,9 @@ void publishDigitalOutputStates(CPhidgetInterfaceKitHandle &phid) {
 }
 
 void onCmdDigitalOut(const phidgets_interface_kit::DigitalArrayConstPtr& input){
-
+   
+    std::cout<<"Receive Cmd"<<std::endl;
+   
   if(initialised){
     int count = 0;
     CPhidgetInterfaceKit_getOutputCount(ifkit, &count);
