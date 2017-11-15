@@ -279,6 +279,7 @@ bool laser_on_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) 
 bool laser_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
 	ROS_INFO("Turning laser off.");
 	CPhidgetInterfaceKit_setOutputState (phid, 0, 0);
+    CPhidgetInterfaceKit_setOutputState (phid, 1, 0);
 	return(true);
 }
 bool projector_on_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
