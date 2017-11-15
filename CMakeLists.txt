@@ -110,7 +110,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   # LIBRARIES phidgets_port
-  CATKIN_DEPENDS roscpp angles std_msgs sensor_msgs phidgets_api message_runtime
+  CATKIN_DEPENDS roscpp angles std_msgs std_srvs sensor_msgs phidgets_api message_runtime
   DEPENDS system_lib
 )
 
