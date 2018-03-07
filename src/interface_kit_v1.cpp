@@ -44,6 +44,10 @@
 #include <phidgets_interface_kit/interface_kit_params.h>
 
 
+const int PROJECTOR_PHID = 0;
+const int FANS_PHID = 1;
+const int LASER_PHID = 2;
+const int LIGHTS_PHID = 3;
 
 // handle
 CPhidgetInterfaceKitHandle phid;
@@ -272,35 +276,45 @@ bool set_values(phidgets_interface_kit::interface_kit::Request &req, phidgets_in
 
 bool laser_on_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
 	ROS_INFO("Turning laser on.");
-	CPhidgetInterfaceKit_setOutputState (phid, 0, 1);
-    CPhidgetInterfaceKit_setOutputState (phid, 1, 1);
+    CPhidgetInterfaceKit_setOutputState (phid, LASER_PHID, 1);
+    CPhidgetInterfaceKit_setOutputState (phid, PROJECTOR_PHID, 1);
 	return(true);
 }
 bool laser_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
 	ROS_INFO("Turning laser off.");
-	CPhidgetInterfaceKit_setOutputState (phid, 0, 0);
-    CPhidgetInterfaceKit_setOutputState (phid, 1, 0);
+    CPhidgetInterfaceKit_setOutputState (phid, LASER_PHID, 0);
+    CPhidgetInterfaceKit_setOutputState (phid, PROJECTOR_PHID, 0);
 	return(true);
 }
 bool projector_on_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
 	ROS_INFO("Turning laser on.");
-	CPhidgetInterfaceKit_setOutputState (phid, 1, 1);
+    CPhidgetInterfaceKit_setOutputState (phid, PROJECTOR_PHID, 1);
 	return(true);
 }
 bool projector_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
 	ROS_INFO("Turning laser off.");
-	CPhidgetInterfaceKit_setOutputState (phid, 1, 0);
+    CPhidgetInterfaceKit_setOutputState (phid, PROJECTOR_PHID, 0);
 	return(true);
 }
 bool lights_on_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
 	ROS_INFO("Turning laser on.");
-	CPhidgetInterfaceKit_setOutputState (phid, 2, 1);
+    CPhidgetInterfaceKit_setOutputState (phid, LIGHTS_PHID, 1);
 	return(true);
 }
 bool lights_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
 	ROS_INFO("Turning laser off.");
-	CPhidgetInterfaceKit_setOutputState (phid, 2, 0);
+    CPhidgetInterfaceKit_setOutputState (phid, LIGHTS_PHID, 0);
 	return(true);
+}
+bool fans_on_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+    ROS_INFO("Turning laser on.");
+    CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 1);
+    return(true);
+}
+bool fans_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+    ROS_INFO("Turning laser off.");
+    CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 0);
+    return(true);
 }
 
 int main(int argc, char* argv[])
@@ -324,7 +338,7 @@ int main(int argc, char* argv[])
     if (attach(phid, serial_number)) {
 		display_properties(phid);
 
-        const int buffer_length = 100;        
+        const int buffer_length = 100;
         std::string topic_name = topic_path + name;
         std::string service_name = "interface_kit";
         if (serial_number > -1) {
@@ -347,6 +361,8 @@ int main(int argc, char* argv[])
         ros::ServiceServer projector_off_srv = n.advertiseService("projector_off", projector_off_cb);
         ros::ServiceServer lights_on_srv = n.advertiseService("lights_on", lights_on_cb);
         ros::ServiceServer lights_off_srv = n.advertiseService("lights_off", lights_off_cb);
+        ros::ServiceServer fans_on_srv = n.advertiseService("fans_on", fans_on_cb);
+        ros::ServiceServer fans_off_srv = n.advertiseService("fans_off", fans_off_cb);
 
         initialised = true;
         ros::Rate loop_rate(frequency);
