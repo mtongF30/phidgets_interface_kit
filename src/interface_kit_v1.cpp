@@ -162,7 +162,7 @@ int display_properties(CPhidgetInterfaceKitHandle phid)
     ROS_INFO("Number of sensors %d", num_sensors);
     ROS_INFO("Ratiometric %d", ratiometric);
 
-    for (int i = 0; i < num_sensors; i++) {       
+    for (int i = 0; i < num_sensors; i++) {
 		CPhidgetInterfaceKit_getSensorChangeTrigger (phid,
 													 i,
 													 &triggerVal);
@@ -170,8 +170,6 @@ int display_properties(CPhidgetInterfaceKitHandle phid)
 		ROS_INFO("Sensor %d Sensitivity Trigger %d",
 				 i, triggerVal);
 	}
-    
-   CPhidgetInterfaceKit_setOutputState (phid, 1, 1);
 
     return 0;
 }
