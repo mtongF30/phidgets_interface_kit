@@ -109,6 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+  INCLUDE_DIRS src
   # LIBRARIES phidgets_port
   CATKIN_DEPENDS roscpp angles std_msgs std_srvs sensor_msgs phidgets_api message_runtime
   DEPENDS system_lib
@@ -122,6 +123,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  src
   ${catkin_INCLUDE_DIRS}
 )
 
