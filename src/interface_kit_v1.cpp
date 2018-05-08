@@ -48,6 +48,8 @@ const int PROJECTOR_PHID = 0;
 const int FANS_PHID = 1;
 const int LASER_PHID = 2;
 const int LIGHTS_PHID = 3;
+const int DOORLOCK_PHID = 4;
+const int DOORLOCK_STATUS_PHID = 0;
 
 // handle
 CPhidgetInterfaceKitHandle phid;
@@ -314,6 +316,44 @@ bool fans_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) 
     CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 0);
     return(true);
 }
+bool doorlock_on_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+    ROS_INFO("unlock_door");
+    CPhidgetInterfaceKit_setOutputState (phid, DOORLOCK_PHID, 1);
+    return(true);
+}
+bool doorlock_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+    ROS_INFO("lock_door");
+    CPhidgetInterfaceKit_setOutputState (phid, DOORLOCK_PHID, 0);
+    return(true);
+}
+
+bool check_doorlock_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+    ROS_INFO("check door open/close");
+    int val;
+    CPhidgetInterfaceKit_getInputState (phid, DOORLOCK_STATUS_PHID, &val);
+
+    phidgets_interface_kit::interface_kit_params m;
+    m.index = DOORLOCK_STATUS_PHID;
+    m.value_type = 0;
+    m.value = val;
+    
+          
+    if (initialised) interface_kit_pub.publish(m);
+
+    ROS_INFO("Digital input %d State %d", DOORLOCK_STATUS_PHID, val);
+     
+    if (val==0){
+        ROS_INFO("Door is open");  
+    }
+      else
+    { 
+        ROS_INFO("Door is lock"); 
+    } 
+
+    return(true);
+}
+
+
 
 int main(int argc, char* argv[])
 {
@@ -361,7 +401,10 @@ int main(int argc, char* argv[])
         ros::ServiceServer lights_off_srv = n.advertiseService("lights_off", lights_off_cb);
         ros::ServiceServer fans_on_srv = n.advertiseService("fans_on", fans_on_cb);
         ros::ServiceServer fans_off_srv = n.advertiseService("fans_off", fans_off_cb);
-
+        ros::ServiceServer doorlock_on_srv = n.advertiseService("unlock_door", doorlock_on_cb);
+        ros::ServiceServer doorlock_off_srv = n.advertiseService("lock_door", doorlock_off_cb);
+        ros::ServiceServer doorlock_srv = n.advertiseService("check_doorlock", check_doorlock_cb);
+      
         initialised = true;
         ros::Rate loop_rate(frequency);
 
