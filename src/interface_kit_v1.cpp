@@ -334,7 +334,7 @@ bool check_doorlock_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response 
 
     phidgets_interface_kit::interface_kit_params m;
     m.index = DOORLOCK_STATUS_PHID;
-    m.value_type = 0;
+    m.value_type = 1;
     m.value = val;
     
           
