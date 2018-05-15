@@ -33,6 +33,7 @@
 #include <ros/ros.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ros/duration.h>
 
 #include <sstream>
 #include <std_msgs/String.h>
@@ -327,7 +328,7 @@ bool doorlock_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &r
     return(true);
 }
 
-bool check_doorlock_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+bool scan_doorlock_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
     ROS_INFO("check door open/close");
     int val;
     CPhidgetInterfaceKit_getInputState (phid, DOORLOCK_STATUS_PHID, &val);
@@ -353,7 +354,29 @@ bool check_doorlock_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response 
     return(true);
 }
 
+bool scan_do_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
+   
+    ROS_INFO("check digit output state");
+    phidgets_interface_kit::interface_kit_params m;
+    int val;
+    int index;
+    int number_output = 8;
+    for(index = 0; index < number_output; index++){
+     
+     CPhidgetInterfaceKit_getOutputState (phid, index, &val);
+    
+     m.index = index;
+     m.value_type = 2;
+     m.value = val;
+             
+     if (initialised) interface_kit_pub.publish(m);
+	ROS_INFO("Digit Output %d state %d",
+				 index, val);
+        ros::Duration(0.01).sleep();
+    }
 
+    return(true);
+}
 
 int main(int argc, char* argv[])
 {
@@ -403,7 +426,8 @@ int main(int argc, char* argv[])
         ros::ServiceServer fans_off_srv = n.advertiseService("fans_off", fans_off_cb);
         ros::ServiceServer doorlock_on_srv = n.advertiseService("unlock_door", doorlock_on_cb);
         ros::ServiceServer doorlock_off_srv = n.advertiseService("lock_door", doorlock_off_cb);
-        ros::ServiceServer doorlock_srv = n.advertiseService("check_doorlock", check_doorlock_cb);
+        ros::ServiceServer doorlock_srv = n.advertiseService("scan_doorlock", scan_doorlock_cb);
+        ros::ServiceServer do_state_srv = n.advertiseService("scan_digit_output", scan_do_cb); 
       
         initialised = true;
         ros::Rate loop_rate(frequency);
