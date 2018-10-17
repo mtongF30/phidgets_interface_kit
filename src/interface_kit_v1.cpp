@@ -337,38 +337,38 @@ bool scan_doorlock_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &
     m.index = DOORLOCK_STATUS_PHID;
     m.value_type = 1;
     m.value = val;
-    
-          
+
+
     if (initialised) interface_kit_pub.publish(m);
 
     ROS_INFO("Digital input %d State %d", DOORLOCK_STATUS_PHID, val);
-     
+
     if (val==0){
-        ROS_INFO("Door is open");  
+        ROS_INFO("Door is open");
     }
       else
-    { 
-        ROS_INFO("Door is lock"); 
-    } 
+    {
+        ROS_INFO("Door is lock");
+    }
 
     return(true);
 }
 
 bool scan_do_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
-   
+
     ROS_INFO("check digit output state");
     phidgets_interface_kit::interface_kit_params m;
     int val;
     int index;
     int number_output = 8;
     for(index = 0; index < number_output; index++){
-     
+
      CPhidgetInterfaceKit_getOutputState (phid, index, &val);
-    
+
      m.index = index;
      m.value_type = 2;
      m.value = val;
-             
+
      if (initialised) interface_kit_pub.publish(m);
 	ROS_INFO("Digit Output %d state %d",
 				 index, val);
@@ -427,8 +427,11 @@ int main(int argc, char* argv[])
         ros::ServiceServer doorlock_on_srv = n.advertiseService("unlock_door", doorlock_on_cb);
         ros::ServiceServer doorlock_off_srv = n.advertiseService("lock_door", doorlock_off_cb);
         ros::ServiceServer doorlock_srv = n.advertiseService("scan_doorlock", scan_doorlock_cb);
-        ros::ServiceServer do_state_srv = n.advertiseService("scan_digit_output", scan_do_cb); 
-      
+        ros::ServiceServer do_state_srv = n.advertiseService("scan_digit_output", scan_do_cb);
+
+        // Turn the fans on.
+        CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 1);
+
         initialised = true;
         ros::Rate loop_rate(frequency);
 
@@ -440,4 +443,3 @@ int main(int argc, char* argv[])
     }
     return 0;
 }
-
