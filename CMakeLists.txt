@@ -141,10 +141,6 @@ include_directories(
 add_executable(interface_kit_node src/interface_kit_node.cpp)
 add_executable(interface_kit src/interface_kit_v1.cpp)
 add_dependencies(interface_kit ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_executable(ir_range_node src/ir_range_node.cpp)
-add_executable(voltage_divider_node src/voltage_divider_node.cpp)
-add_executable(manager src/manager.cpp)
-add_executable(manager_client src/manager_client.cpp)
 add_executable(interface_kit_client src/interface_kit_client.cpp)
 add_dependencies(interface_kit_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
@@ -152,18 +148,12 @@ add_dependencies(interface_kit_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 ## same as for the library above
 add_dependencies(interface_kit_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(interface_kit_node phidgets_api)
-add_dependencies(manager phidgets_api)
-add_dependencies(manager_client phidgets_api)
 add_dependencies(interface_kit phidgets_api)
 add_dependencies(interface_kit_client phidgets_api)
 
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(interface_kit_node ${catkin_LIBRARIES})
-target_link_libraries(ir_range_node ${catkin_LIBRARIES})
-target_link_libraries(voltage_divider_node ${catkin_LIBRARIES})
-target_link_libraries(manager ${catkin_LIBRARIES})
-target_link_libraries(manager_client ${catkin_LIBRARIES})
 target_link_libraries(interface_kit ${catkin_LIBRARIES})
 target_link_libraries(interface_kit_client ${catkin_LIBRARIES})
 
