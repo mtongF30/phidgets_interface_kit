@@ -54,7 +54,6 @@ find_package(catkin REQUIRED COMPONENTS
    DigitalArray.msg
    manager_params.msg
    interface_kit_params.msg
-   
  )
 
 ## Generate services in the 'srv' folder
@@ -140,17 +139,13 @@ include_directories(
 ## Declare a C++ executable
 add_executable(interface_kit_node src/interface_kit_node.cpp)
 add_executable(interface_kit src/interface_kit_v1.cpp)
-add_dependencies(interface_kit ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_executable(interface_kit_client src/interface_kit_client.cpp)
-add_dependencies(interface_kit_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(interface_kit_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(interface_kit_node phidgets_api)
-add_dependencies(interface_kit phidgets_api)
-add_dependencies(interface_kit_client phidgets_api)
-
+add_dependencies(interface_kit ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(interface_kit_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(interface_kit_node ${catkin_LIBRARIES})
