@@ -296,36 +296,36 @@ bool laser_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
 
 // projector on/off
 bool projector_on_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
-	ROS_INFO("Turning laser on.");
+	ROS_INFO("Turning projector on.");
     CPhidgetInterfaceKit_setOutputState (phid, PROJECTOR_PHID, 1);
 	return(true);
 }
 bool projector_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
-	ROS_INFO("Turning laser off.");
+	ROS_INFO("Turning projector off.");
     CPhidgetInterfaceKit_setOutputState (phid, PROJECTOR_PHID, 0);
 	return(true);
 }
 
 // lights on/off
 bool lights_on_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
-	ROS_INFO("Turning laser on.");
+	ROS_INFO("Turning lights on.");
     CPhidgetInterfaceKit_setOutputState (phid, LIGHTS_PHID, 1);
 	return(true);
 }
 bool lights_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
-	ROS_INFO("Turning laser off.");
+	ROS_INFO("Turning lights on.");
     CPhidgetInterfaceKit_setOutputState (phid, LIGHTS_PHID, 0);
 	return(true);
 }
 
 // fans on/off
 bool fans_on_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
-    ROS_INFO("Turning laser on.");
+    ROS_INFO("Turning fans on.");
     CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 1);
     return(true);
 }
 bool fans_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
-    ROS_INFO("Turning laser off.");
+    ROS_INFO("Turning fans off.");
     CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 0);
     return(true);
 }
@@ -362,7 +362,7 @@ bool scan_doorlock_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &
     }
       else
     {
-        ROS_INFO("Door is lock");
+        ROS_INFO("Door is locked");
     }
 
     return(true);
@@ -395,12 +395,12 @@ bool scan_do_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
 
 // shutter open/close
 bool shutter_open_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
-    ROS_INFO("open_shutter");
+    ROS_INFO("Opening shutter");
     CPhidgetInterfaceKit_setOutputState (phid, SHUTTER_PHID, 1);
     return(true);
 }
 bool shutter_close_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
-    ROS_INFO("close_shutter");
+    ROS_INFO("Closing shutter");
     CPhidgetInterfaceKit_setOutputState (phid, SHUTTER_PHID, 0);
     return(true);
 }
