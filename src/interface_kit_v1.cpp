@@ -51,7 +51,7 @@ const int LASER_PHID = 2;
 const int LIGHTS_PHID = 3;
 const int DOORLOCK_PHID = 4;
 const int DOORLOCK_STATUS_PHID = 0;
-const int SHUTTER_PHID = 3; // todo: hookup to correct pin
+const int SHUTTER_PHID = 5;
 
 // handle
 CPhidgetInterfaceKitHandle phid;
