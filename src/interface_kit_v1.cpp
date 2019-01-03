@@ -406,14 +406,14 @@ bool scan_do_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
 // shutter open/close
 bool shutter_open_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
     ROS_INFO("Opening shutter");
-    CPhidgetInterfaceKit_setOutputState (phid, SHUTTER_PHID, 1);
-    ROS_INFO("Output %d State %d", SHUTTER_PHID, 1);
+    CPhidgetInterfaceKit_setOutputState (phid, SHUTTER_PHID, 0);
+    ROS_INFO("Output %d State %d", SHUTTER_PHID, 0);
     return(true);
 }
 bool shutter_close_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
     ROS_INFO("Closing shutter");
-    CPhidgetInterfaceKit_setOutputState (phid, SHUTTER_PHID, 0);
-    ROS_INFO("Output %d State %d", SHUTTER_PHID, 0);
+    CPhidgetInterfaceKit_setOutputState (phid, SHUTTER_PHID, 1);
+    ROS_INFO("Output %d State %d", SHUTTER_PHID, 1);
     return(true);
 }
 
