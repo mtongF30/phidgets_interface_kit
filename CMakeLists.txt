@@ -111,7 +111,7 @@ catkin_package(
   INCLUDE_DIRS src
   # LIBRARIES phidgets_port
   CATKIN_DEPENDS roscpp angles std_msgs std_srvs sensor_msgs phidgets_api message_runtime
-  DEPENDS system_lib
+  # DEPENDS system_lib
 )
 
 ###########
