@@ -328,13 +328,23 @@ bool lights_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res
 
 // fans on/off
 bool fans_on_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
-    ROS_INFO("Turning fans on.");
-    CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 1);
+    if(ros::param::param<bool>("config_params/disable_fans", false))
+    {
+        ROS_INFO("Tried to turn fans on, but fans are disabled.");
+    } else {
+        ROS_INFO("Turning fans on.");
+        CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 1);
+    }
     return(true);
 }
 bool fans_off_cb(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res) {
-    ROS_INFO("Turning fans off.");
-    CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 0);
+    if(ros::param::param<bool>("config_params/disable_fans", false))
+    {
+        ROS_INFO("Tried to turn fans off, but fans are disabled.");
+    } else {
+        ROS_INFO("Turning fans off.");
+        CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 0);
+    }
     return(true);
 }
 
@@ -478,7 +488,12 @@ int main(int argc, char* argv[])
         ros::ServiceServer shutter_close_srv = n.advertiseService("shutter_close", shutter_close_cb);
 
         // Turn the fans on.
-        CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 1);
+        if(!ros::param::param<bool>("/config_params/disable_fans", false))
+        {
+            CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 1);
+        } else { // Or off if they are disabled.
+            CPhidgetInterfaceKit_setOutputState (phid, FANS_PHID, 0);
+        }
 
         initialised = true;
         ros::Rate loop_rate(frequency);
